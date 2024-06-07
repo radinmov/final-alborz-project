@@ -1,12 +1,43 @@
 import { useState } from "react";
-import "./Style.css"
+import "./Style.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
+
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
     const [Username, setUserName] = useState('');
     const [password, setPassword] = useState('');
+    const navigate =useNavigate()
+
+
+    const notify = (message) => toast(message);
+
+
 
     function post() {
+        const auth_inputs = [
+            { name: "Username", value: Username },
+            { name: "Email", value: email },
+            { name: "Password", value: password }
+          ];
+          for (const field of auth_inputs) {
+            if (field.value.length === 0) {
+              toast.warn(`please enter a ${field.name}`, {
+                position: "top-right",
+                autoClose: 1007,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
+              // notify(`please enter a ${field.name}`);
+              return;
+            }
+          }
         
         var data = JSON.stringify({
            email: email,
@@ -14,7 +45,7 @@ const SignUp = () => {
            password: password
         });
 
-        fetch("http://46.100.94.88:3003/api/auth/signup", { 
+        fetch("http://192.168.221.252:3003/api/auth/signup", { 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -22,16 +53,42 @@ const SignUp = () => {
             body: data,
         })
         .then((response) => {
-            response.json()
+            response.json();
+            console.log(response);
+            let auth = response.ok
+            if (auth === true) {
+                toast.success(' SignUp sucsess', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                  navigate('/login')
+            } else {
+                let er =response.statusText
+                toast.error(`BackEnd:${er}`, {
+                    position: "top-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+            }
         })
-        .then((result) => {
-            console.log(result);
-        });
     }
 
     return (
+        <>
+            <ToastContainer />
         <div className="wrapper">
-                <h1>Login</h1>
+                <h1>SignUp</h1>
                 <div className="input-box">
                     <input onChange={(e) => setEmail(e.target.value)} type="email" placeholder="please enter your email" required />
                     <i className='bx bxs-user'></i>
@@ -53,6 +110,7 @@ const SignUp = () => {
                     <p>Don't have an account? Register</p>
                 </div>
         </div>
+    </>
     );
 }
 
